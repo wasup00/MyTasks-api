@@ -1,13 +1,16 @@
 package com.wasup.mytasks.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-public class UserDTO {
-    private Integer id;
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserRequestDTO {
 
     @NotBlank(message = "Name is required")
     private String name;

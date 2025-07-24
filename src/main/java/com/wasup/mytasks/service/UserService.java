@@ -1,7 +1,8 @@
 package com.wasup.mytasks.service;
 
 import com.wasup.mytasks.model.ModelUtils;
-import com.wasup.mytasks.model.dto.UserDTO;
+import com.wasup.mytasks.model.dto.UserRequestDTO;
+import com.wasup.mytasks.model.dto.UserResponseDTO;
 import com.wasup.mytasks.model.entity.User;
 import com.wasup.mytasks.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,31 +16,23 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserDTO createUser(UserDTO userDTO) {
-        /*User user = User.builder()
-                .name(userDTO.getName())
-                .lastName(userDTO.getLastName())
-                .username(userDTO.getUsername())
-                .password(passwordEncoder.encode(userDTO.getPassword()))
-                .build();*/
-
-        User savedUser = userRepository.save(ModelUtils.convertToEntity(userDTO, User.class));
-        userDTO.setId(savedUser.getId());
-        if (!ModelUtils.validateUser(savedUser, userDTO)) {
+    public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
+        User savedUser = userRepository.save(ModelUtils.convertToEntity(userRequestDTO, User.class));
+        UserResponseDTO userResponseDTO = ModelUtils.convertToDto(savedUser, UserResponseDTO.class);
+        if (!ModelUtils.validateUser(savedUser, userResponseDTO)) {
             return null;
         }
-        userDTO.setPassword(null); // Don't return the password
-        return userDTO;
+        return userResponseDTO;
     }
 
-    public UserDTO getUserById(Long id) {
+    public UserResponseDTO getUserById(Long id) {
         return userRepository.findById(id)
-                .map(user -> ModelUtils.convertToDto(user, UserDTO.class))
+                .map(user -> ModelUtils.convertToDto(user, UserResponseDTO.class))
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public List<UserDTO> getAllUsers() {
-        return userRepository.findAll().stream().map(user -> ModelUtils.convertToDto(user, UserDTO.class)).toList();
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll().stream().map(user -> ModelUtils.convertToDto(user, UserResponseDTO.class)).toList();
     }
 
     public User findUserEntityById(Long id) {

@@ -6,18 +6,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaskDTO {
+public class UserResponseDTO {
     private Integer id;
 
-    @NotBlank(message = "Title is required")
-    private String title;
-    private String description;
-    private Date date;
-    private Integer userId;
+    @NotBlank(message = "Name is required")
+    private String name;
+
+    private String lastName;
+
+    @NotBlank(message = "Username is required")
+    private String username;
 }
