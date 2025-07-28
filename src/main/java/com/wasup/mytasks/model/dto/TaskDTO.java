@@ -13,11 +13,11 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskDTO {
-    private Integer id;
+    private Long id;
 
     @NotBlank(message = "Title is required")
     private String title;
     private String description;
     private Date date;
-    private Integer userId;
+    private Long userId;
 }

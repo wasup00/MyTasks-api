@@ -43,6 +43,6 @@ public class ModelUtils {
 
     public static boolean validateTask(Task task, TaskDTO taskDTO) {
         return task.getTitle().equals(taskDTO.getTitle()) && task.getDescription().equals(taskDTO.getDescription()) &&
-                task.getDate().equals(taskDTO.getDate()) && task.getUserId().getId().equals(taskDTO.getUserId());
+                task.getDate().equals(taskDTO.getDate()) && task.getUser().getId().equals(taskDTO.getUserId());
     }
 }

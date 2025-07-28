@@ -11,4 +11,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByUserId(User user);
     List<Task> findByUserIdOrderByDateDesc(User user);
 
+    List<Task> findByUser_IdOrderByDateDesc(Long userId);
+
 }

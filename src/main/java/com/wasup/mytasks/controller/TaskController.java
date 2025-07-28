@@ -17,16 +17,16 @@ public class TaskController {
 
     @PostMapping
     public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskDTO taskDTO) {
-        return ResponseEntity.ok(taskService.createTask(taskDTO));
+        return taskService.createTask(taskDTO);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TaskDTO> getTask(@PathVariable Long id) {
-        return ResponseEntity.ok(taskService.getTaskById(id));
+        return taskService.getTaskById(id);
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<TaskDTO>> getUserTasks(@PathVariable Long userId) {
-        return ResponseEntity.ok(taskService.getTasksByUserId(userId));
+        return taskService.getTasksByUserId(userId);
     }
 }
