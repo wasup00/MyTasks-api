@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "tasks")
@@ -25,8 +25,10 @@ public class Task {
 
     private String description;
 
+    private boolean completed = false;
+
     @Temporal(TemporalType.TIMESTAMP)
-    private Date date;
+    private OffsetDateTime date;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

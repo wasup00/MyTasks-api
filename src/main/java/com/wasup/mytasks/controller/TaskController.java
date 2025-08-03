@@ -1,32 +1,34 @@
 package com.wasup.mytasks.controller;
 
-import com.wasup.mytasks.model.dto.TaskDTO;
+import com.wasup.mytasks.api.TaskApi;
+import com.wasup.mytasks.model.TaskDTO;
 import com.wasup.mytasks.service.TaskService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.net.URI;
 
 @RestController
-@RequestMapping("/api/task")
 @RequiredArgsConstructor
-public class TaskController {
+public class TaskController implements TaskApi {
     private final TaskService taskService;
 
-    @PostMapping
-    public ResponseEntity<TaskDTO> createTask(@Valid @RequestBody TaskDTO taskDTO) {
-        return taskService.createTask(taskDTO);
+    @Override
+    public ResponseEntity<TaskDTO> createTask(TaskDTO taskDTO) {
+        TaskDTO task = taskService.createTask(taskDTO);
+        return ResponseEntity.created(URI.create("")).body(task);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<TaskDTO> getTask(@PathVariable Long id) {
-        return taskService.getTaskById(id);
+    @Override
+    public ResponseEntity<TaskDTO> getTask(Long id) {
+        TaskDTO taskDTO = taskService.getTaskById(id);
+        return ResponseEntity.ok(taskDTO);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<TaskDTO>> getUserTasks(@PathVariable Long userId) {
-        return taskService.getTasksByUserId(userId);
+    @Override
+    public ResponseEntity<Void> deleteTask(Long id) {
+        taskService.deleteTask(id);
+        return ResponseEntity.noContent().build();
     }
 }

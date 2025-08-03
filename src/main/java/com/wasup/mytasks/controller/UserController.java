@@ -1,34 +1,49 @@
 package com.wasup.mytasks.controller;
 
-import com.wasup.mytasks.model.dto.UserRequestDTO;
-import com.wasup.mytasks.model.dto.UserResponseDTO;
+import com.wasup.mytasks.api.UserApi;
+import com.wasup.mytasks.model.TaskDTO;
+import com.wasup.mytasks.model.UserRequestDTO;
+import com.wasup.mytasks.model.UserResponseDTO;
 import com.wasup.mytasks.service.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user")
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserApi {
     private final UserService userService;
 
-    @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(
-            @Valid @RequestBody UserRequestDTO userRequestDTO) {
-        return userService.createUser(userRequestDTO);
+    @Override
+    public ResponseEntity<UserResponseDTO> createUser(UserRequestDTO userRequestDTO) {
+        UserResponseDTO userResponseDTO = userService.createUser(userRequestDTO);
+        return ResponseEntity.created(URI.create("")).body(userResponseDTO);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long id) {
-        return userService.getUserById(id);
+    @Override
+    public ResponseEntity<Void> deleteUser(Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping
+    @Override
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
-        return userService.getAllUsers();
+        List<UserResponseDTO> userResponseDTOList = userService.getAllUsers();
+        return ResponseEntity.ok(userResponseDTOList);
+    }
+
+    @Override
+    public ResponseEntity<UserResponseDTO> getUser(Long id) {
+        UserResponseDTO userResponseDTO = userService.getUser(id);
+        return ResponseEntity.ok(userResponseDTO);
+    }
+
+    @Override
+    public ResponseEntity<List<TaskDTO>> getUserTasks(Long id) {
+        List<TaskDTO> taskDTOList = userService.getUserTasks(id);
+        return ResponseEntity.ok(taskDTOList);
     }
 }

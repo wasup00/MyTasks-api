@@ -1,16 +1,18 @@
 package com.wasup.mytasks.service;
 
+import com.wasup.mytasks.exception.ResourceNotFoundException;
+import com.wasup.mytasks.exception.ValidationException;
 import com.wasup.mytasks.model.ModelUtils;
-import com.wasup.mytasks.model.dto.UserRequestDTO;
-import com.wasup.mytasks.model.dto.UserResponseDTO;
+import com.wasup.mytasks.model.TaskDTO;
+import com.wasup.mytasks.model.UserRequestDTO;
+import com.wasup.mytasks.model.UserResponseDTO;
 import com.wasup.mytasks.model.entity.User;
+import com.wasup.mytasks.repository.TaskRepository;
 import com.wasup.mytasks.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,32 +22,35 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
 
-    public ResponseEntity<UserResponseDTO> createUser(UserRequestDTO userRequestDTO) {
+    public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
         User savedUser = userRepository.save(ModelUtils.convertToEntity(userRequestDTO, User.class));
         UserResponseDTO userResponseDTO = ModelUtils.convertToDto(savedUser, UserResponseDTO.class);
+
         if (!ModelUtils.validateUser(savedUser, userResponseDTO)) {
             log.atError()
                     .addArgument(savedUser::toString)
                     .addArgument(userResponseDTO::toString)
                     .log("Problem when validating user saved and created\nsavedUser:\n\t{}\nuserResponseDTO:\n\t{}");
-            return ResponseEntity.internalServerError().build();
+            throw new ValidationException("User validation failed");
+
         }
         log.atInfo().addArgument(savedUser::getId).log("User {} created successfully");
-        return ResponseEntity.created(URI.create("")).body(userResponseDTO);
+        return userResponseDTO;
     }
 
-    public ResponseEntity<UserResponseDTO> getUserById(Long id) {
+    public UserResponseDTO getUser(Long id) {
         return userRepository.findById(id)
-                .map(user -> ResponseEntity.ok(ModelUtils.convertToDto(user, UserResponseDTO.class)))
-                .orElse(ResponseEntity.notFound().build());
+                .map(user -> ModelUtils.convertToDto(user, UserResponseDTO.class))
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
-        return ResponseEntity.ok(userRepository.findAll()
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll()
                 .stream()
                 .map(user -> ModelUtils.convertToDto(user, UserResponseDTO.class))
-                .toList());
+                .toList();
     }
 
     public Optional<User> findUserById(Long id) {
@@ -56,4 +61,23 @@ public class UserService {
         return userRepository.existsById(id);
     }
 
+    public void deleteUser(Long id) {
+        if (!existsById(id)) {
+            log.atError().addArgument(id).log("No user with id -> {} found");
+            throw new ResourceNotFoundException("User not found");
+        }
+        userRepository.deleteById(id);
+        log.atInfo().addArgument(id).log("User {} deleted successfully");
+    }
+
+    public List<TaskDTO> getUserTasks(Long userId) {
+        if (!existsById(userId)) {
+            log.atError().addArgument(userId).log("No user with userId -> {} found");
+            throw new ResourceNotFoundException("User not found");
+        }
+        return taskRepository.findByUser_IdOrderByDateDesc(userId)
+                .stream()
+                .map(task -> ModelUtils.convertToDto(task, TaskDTO.class))
+                .toList();
+    }
 }

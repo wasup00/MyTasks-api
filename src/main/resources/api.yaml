@@ -1,0 +1,245 @@
+openapi: 3.0.3
+info:
+  title: MyTasks API
+  version: 1.0.0
+  description: API for MyTasks application
+tags:
+  - name: User
+    description: User management APIs
+  - name: Task
+    description: Task management APIs
+paths:
+  /user:
+    post:
+      tags:
+        - User
+      summary: Create a new user
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+      responses:
+        '200':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDTO'
+        '400':
+          description: Invalid input
+    get:
+      tags:
+        - User
+      summary: Get all users
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponseDTO'
+
+  /user/{id}:
+    get:
+      tags:
+        - User
+      summary: Get a user by ID
+      operationId: getUser
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user to retrieve
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponseDTO'
+        '404':
+          description: User not found
+    delete:
+      tags:
+        - User
+      summary: Delete user by ID
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: User deleted
+        '404':
+          description: User not found
+
+  /user/{id}/task:
+    get:
+      tags:
+        - User
+      summary: Get tasks of a user by user's ID
+      operationId: getUserTasks
+      parameters:
+        - name: id
+          in: path
+          description: ID of the user to retrieve the tasks
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskDTO'
+        '404':
+          description: User not found
+
+  /task:
+    post:
+      tags:
+        - Task
+      summary: Create a new task
+      operationId: createTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskDTO'
+      responses:
+        '200':
+          description: Task created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDTO'
+        '400':
+          description: Invalid input
+
+  /task/{id}:
+    get:
+      tags:
+        - Task
+      summary: Get a task by ID
+      operationId: getTask
+      parameters:
+        - name: id
+          in: path
+          description: ID of the task to retrieve
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Task found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDTO'
+        '404':
+          description: Task not found
+    delete:
+      tags:
+        - Task
+      summary: Delete task by ID
+      operationId: deleteTask
+      parameters:
+        - name: id
+          in: path
+          description: ID of the task to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: User deleted
+        '404':
+          description: User not found
+
+components:
+  schemas:
+    UserRequestDTO:
+      type: object
+      required:
+        - name
+        - lastName
+        - username
+        - password
+      properties:
+        name:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        username:
+          type: string
+          description: User's username
+        password:
+          type: string
+          description: User's password
+          format: password
+
+    UserResponseDTO:
+      type: object
+      required:
+        - id
+        - name
+        - lastName
+        - username
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        username:
+          type: string
+          description: User's username
+
+    TaskDTO:
+      type: object
+      required:
+        - title
+        - description
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+        completed:
+          type: boolean
+        date:
+          type: string
+          format: date-time
+        userId:
+          type: integer
+          format: int64

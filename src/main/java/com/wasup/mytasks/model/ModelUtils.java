@@ -1,8 +1,5 @@
 package com.wasup.mytasks.model;
 
-import com.wasup.mytasks.model.dto.TaskDTO;
-import com.wasup.mytasks.model.dto.UserRequestDTO;
-import com.wasup.mytasks.model.dto.UserResponseDTO;
 import com.wasup.mytasks.model.entity.Task;
 import com.wasup.mytasks.model.entity.User;
 import org.modelmapper.ModelMapper;
