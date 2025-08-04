@@ -243,3 +243,15 @@ components:
         userId:
           type: integer
           format: int64
+
+    ErrorResponse:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: integer
+          format: int32
+        message:
+          type: string
