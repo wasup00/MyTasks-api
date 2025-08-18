@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,6 +19,12 @@ public class TaskController implements TaskApi {
     public ResponseEntity<TaskDTO> createTask(TaskDTO taskDTO) {
         TaskDTO task = taskService.createTask(taskDTO);
         return ResponseEntity.created(URI.create("")).body(task);
+    }
+
+    @Override
+    public ResponseEntity<List<TaskDTO>> getAllTasks() {
+        List<TaskDTO> tasks = taskService.getAllTasks();
+        return ResponseEntity.ok(tasks);
     }
 
     @Override

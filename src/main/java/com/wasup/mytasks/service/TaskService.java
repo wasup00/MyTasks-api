@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -38,6 +40,13 @@ public class TaskService {
                 .addArgument(taskDTO::getUserId)
                 .log("Task {} created successfully for user {}");
         return taskDTO;
+    }
+
+    public List<TaskDTO> getAllTasks() {
+        return taskRepository.findAll()
+                .stream()
+                .map(task -> ModelUtils.convertToDto(task, TaskDTO.class))
+                .toList();
     }
 
     public TaskDTO getTaskById(Long id) {

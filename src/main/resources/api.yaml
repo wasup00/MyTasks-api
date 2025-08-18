@@ -8,6 +8,8 @@ tags:
     description: User management APIs
   - name: Task
     description: Task management APIs
+  - name: Auth
+    description: Authentication APIs
 paths:
   /user:
     post:
@@ -33,7 +35,6 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-
     get:
       tags:
         - User
@@ -50,7 +51,6 @@ paths:
                   $ref: '#/components/schemas/UserResponseDTO'
         '500':
           $ref: '#/components/responses/InternalServerError'
-
 
   /user/{id}:
     get:
@@ -99,7 +99,6 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-
   /user/{id}/task:
     get:
       tags:
@@ -128,7 +127,6 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-
   /task:
     post:
       tags:
@@ -152,7 +150,22 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalServerError'
-
+    get:
+      tags:
+        - Task
+      summary: Get all tasks
+      operationId: getAllTasks
+      responses:
+        '200':
+          description: Tasks retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskDTO'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
   /task/{id}:
     get:
@@ -201,6 +214,53 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequestDTO'
+      responses:
+        '200':
+          description: User registered successfully
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/UsernameAlreadyExists'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Sign in with username and password
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Signed in successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
 components:
   responses:
@@ -228,7 +288,18 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-
+    Unauthorized:
+      description: Authentication failed or user not authorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UsernameAlreadyExists:
+      description: Username already exists
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
 
   schemas:
     UserRequestDTO:
@@ -312,3 +383,30 @@ components:
           format: int32
         message:
           type: string
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          pattern: ".*\\S+.*"
+          description: User's username
+        password:
+          type: string
+          format: password
+          description: User's password
+
+    LoginResponse:
+      type: object
+      required:
+        - token
+        - user
+      properties:
+        token:
+          type: string
+          description: Access token (e.g., Bearer JWT)
+        user:
+          $ref: '#/components/schemas/UserResponseDTO'

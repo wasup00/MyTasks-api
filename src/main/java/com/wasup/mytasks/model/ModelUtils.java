@@ -3,27 +3,10 @@ package com.wasup.mytasks.model;
 import com.wasup.mytasks.model.entity.Task;
 import com.wasup.mytasks.model.entity.User;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.PropertyMap;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class ModelUtils {
 
     private static final ModelMapper modelMapper = new ModelMapper();
-    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    static {
-        modelMapper.addMappings(new PropertyMap<UserRequestDTO, User>() {
-            @Override
-            protected void configure() {
-                using(ctx -> passwordEncoder.encode((String) ctx.getSource()))
-                        .map(source.getPassword(), destination.getPassword());
-            }
-        });
-    }
-
-
-
 
     public static <D, E> E convertToEntity(D dto, Class<E> entityClass) {
         return modelMapper.map(dto, entityClass);

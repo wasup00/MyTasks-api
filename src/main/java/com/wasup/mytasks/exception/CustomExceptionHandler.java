@@ -4,6 +4,7 @@ import com.wasup.mytasks.model.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -21,7 +22,8 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler({IllegalArgumentException.class, MethodArgumentNotValidException.class,
             HttpMessageNotReadableException.class, NoResourceFoundException.class,
-            HttpRequestMethodNotSupportedException.class})
+            HttpRequestMethodNotSupportedException.class, UserAlreadyExistException.class,
+            BadCredentialsException.class})
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(Exception e) {
         ErrorResponse errorResponse =
                 new ErrorResponse().status(HttpStatus.BAD_REQUEST.value()).message(e.getMessage());
