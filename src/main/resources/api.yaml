@@ -99,34 +99,6 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 
-  /user/{id}/task:
-    get:
-      tags:
-        - User
-      summary: Get tasks of a user by user's ID
-      operationId: getUserTasks
-      parameters:
-        - name: id
-          in: path
-          description: ID of the user to retrieve the tasks
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: User found
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TaskDTO'
-        '404':
-          $ref: '#/components/responses/UserNotFound'
-        '500':
-          $ref: '#/components/responses/InternalServerError'
-
   /task:
     post:
       tags:
@@ -164,6 +136,43 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/TaskDTO'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /task/by-user:
+    get:
+      tags:
+        - Task
+      summary: Get tasks by user identifier
+      description: Retrieve tasks linked to a user, identified by either userId or username. At least one parameter must be provided.
+      operationId: getTasksByUser
+      parameters:
+        - name: userId
+          in: query
+          description: ID of the user whose tasks to retrieve
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: username
+          in: query
+          description: Username of the user whose tasks to retrieve
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tasks retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TaskDTO'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/UserNotFound'
         '500':
           $ref: '#/components/responses/InternalServerError'
 

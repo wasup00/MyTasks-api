@@ -3,11 +3,9 @@ package com.wasup.mytasks.service;
 import com.wasup.mytasks.exception.ResourceNotFoundException;
 import com.wasup.mytasks.exception.ValidationException;
 import com.wasup.mytasks.model.ModelUtils;
-import com.wasup.mytasks.model.TaskDTO;
 import com.wasup.mytasks.model.UserRequestDTO;
 import com.wasup.mytasks.model.UserResponseDTO;
 import com.wasup.mytasks.model.entity.User;
-import com.wasup.mytasks.repository.TaskRepository;
 import com.wasup.mytasks.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +20,6 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final TaskRepository taskRepository;
 
     public UserResponseDTO createUser(UserRequestDTO userRequestDTO) {
         User savedUser = userRepository.save(ModelUtils.convertToEntity(userRequestDTO, User.class));
@@ -57,12 +54,16 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public boolean existsById(Long id) {
+    public Optional<User> findUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public boolean userExistsById(Long id) {
         return userRepository.existsById(id);
     }
 
     public void deleteUser(Long id) {
-        if (!existsById(id)) {
+        if (!userExistsById(id)) {
             log.atError().addArgument(id).log("No user with id -> {} found");
             throw new ResourceNotFoundException("User not found");
         }
@@ -70,14 +71,5 @@ public class UserService {
         log.atInfo().addArgument(id).log("User {} deleted successfully");
     }
 
-    public List<TaskDTO> getUserTasks(Long userId) {
-        if (!existsById(userId)) {
-            log.atError().addArgument(userId).log("No user with userId -> {} found");
-            throw new ResourceNotFoundException("User not found");
-        }
-        return taskRepository.findByUser_IdOrderByDateDesc(userId)
-                .stream()
-                .map(task -> ModelUtils.convertToDto(task, TaskDTO.class))
-                .toList();
-    }
+
 }

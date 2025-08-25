@@ -39,12 +39,8 @@ public class AuthService {
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         log.atInfo().addArgument(loginRequest::getUsername).log("User {} logged in successfully");
-        User user = userRepository.findByUsername(loginRequest.getUsername());
-        if (user == null) {
-            // Should never happen as it is user is authenticated
-            log.atError().addArgument(loginRequest::getUsername).log("No user with username -> {} found");
-            throw new ResourceNotFoundException("User not found");
-        }
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         String token = jwtService.generateToken(user.getUsername());
         return new LoginResponse()

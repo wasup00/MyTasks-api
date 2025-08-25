@@ -1,7 +1,6 @@
 package com.wasup.mytasks.controller;
 
 import com.wasup.mytasks.api.UserApi;
-import com.wasup.mytasks.model.TaskDTO;
 import com.wasup.mytasks.model.UserRequestDTO;
 import com.wasup.mytasks.model.UserResponseDTO;
 import com.wasup.mytasks.service.UserService;
@@ -39,11 +38,5 @@ public class UserController implements UserApi {
     public ResponseEntity<UserResponseDTO> getUser(Long id) {
         UserResponseDTO userResponseDTO = userService.getUser(id);
         return ResponseEntity.ok(userResponseDTO);
-    }
-
-    @Override
-    public ResponseEntity<List<TaskDTO>> getUserTasks(Long id) {
-        List<TaskDTO> taskDTOList = userService.getUserTasks(id);
-        return ResponseEntity.ok(taskDTOList);
     }
 }

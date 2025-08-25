@@ -28,6 +28,12 @@ public class TaskController implements TaskApi {
     }
 
     @Override
+    public ResponseEntity<List<TaskDTO>> getTasksByUser(Long userId, String username) {
+        List<TaskDTO> taskDTOS = taskService.getTasksByUser(userId, username);
+        return ResponseEntity.ok(taskDTOS);
+    }
+
+    @Override
     public ResponseEntity<TaskDTO> getTask(Long id) {
         TaskDTO taskDTO = taskService.getTaskById(id);
         return ResponseEntity.ok(taskDTO);

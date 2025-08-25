@@ -5,8 +5,8 @@ import com.wasup.mytasks.exception.ValidationException;
 import com.wasup.mytasks.model.ModelUtils;
 import com.wasup.mytasks.model.TaskDTO;
 import com.wasup.mytasks.model.entity.Task;
+import com.wasup.mytasks.model.entity.User;
 import com.wasup.mytasks.repository.TaskRepository;
-import com.wasup.mytasks.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,12 +19,17 @@ import java.util.List;
 public class TaskService {
 
     private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
+    private static final String USER_NOT_FOUND_MSG = "User not found";
+    private final UserService userService;
+
+    private static TaskDTO toTaskDTO(Task task) {
+        return ModelUtils.convertToDto(task, TaskDTO.class);
+    }
 
     public TaskDTO createTask(TaskDTO taskDTO) {
-        if (!userRepository.existsById(taskDTO.getUserId())) {
+        if (!userService.userExistsById(taskDTO.getUserId())) {
             log.atError().addArgument(taskDTO::getUserId).log("No user with userId -> {} found");
-            throw new ResourceNotFoundException("User not found");
+            throw new ResourceNotFoundException(USER_NOT_FOUND_MSG);
         }
         Task savedTask = taskRepository.save(ModelUtils.convertToEntity(taskDTO, Task.class));
         taskDTO.setId(savedTask.getId());
@@ -45,14 +50,16 @@ public class TaskService {
     public List<TaskDTO> getAllTasks() {
         return taskRepository.findAll()
                 .stream()
-                .map(task -> ModelUtils.convertToDto(task, TaskDTO.class))
+                .map(TaskService::toTaskDTO)
                 .toList();
     }
 
-    public TaskDTO getTaskById(Long id) {
-        return taskRepository.findById(id)
-                .map(task -> ModelUtils.convertToDto(task, TaskDTO.class))
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+    public List<TaskDTO> getTasksByUser(Long userId, String username) {
+        Long resolvedUserId = resolveUserId(userId, username);
+        return taskRepository.findByUser_IdOrderByDateDesc(resolvedUserId)
+                .stream()
+                .map(TaskService::toTaskDTO)
+                .toList();
     }
 
     public void deleteTask(Long id) {
@@ -63,4 +70,27 @@ public class TaskService {
         taskRepository.deleteById(id);
         log.atInfo().addArgument(id).log("Task {} deleted successfully");
     }
+
+    public TaskDTO getTaskById(Long id) {
+        return taskRepository.findById(id)
+                .map(TaskService::toTaskDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+    }
+
+    private Long resolveUserId(Long userId, String username) {
+        if (userId == null && username == null) {
+            throw new IllegalArgumentException("Either userId or username must be provided");
+        }
+        if (userId != null) {
+            if (!userService.userExistsById(userId)) {
+                log.atError().addArgument(userId).log("No user with userId -> {} found");
+                throw new ResourceNotFoundException(USER_NOT_FOUND_MSG);
+            }
+            return userId;
+        }
+        return userService.findUserByUsername(username)
+                .map(User::getId)
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MSG));
+    }
+
 }
