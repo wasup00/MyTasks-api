@@ -3,6 +3,7 @@ package com.wasup.mytasks.controller;
 import com.wasup.mytasks.api.UserApi;
 import com.wasup.mytasks.model.UserRequestDTO;
 import com.wasup.mytasks.model.UserResponseDTO;
+import com.wasup.mytasks.model.UserUpdateDTO;
 import com.wasup.mytasks.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -38,5 +39,15 @@ public class UserController implements UserApi {
     public ResponseEntity<UserResponseDTO> getUser(Long id) {
         UserResponseDTO userResponseDTO = userService.getUser(id);
         return ResponseEntity.ok(userResponseDTO);
+    }
+
+    @Override
+    public ResponseEntity<UserResponseDTO> updateUser(Long id, UserRequestDTO userRequestDTO) {
+        return ResponseEntity.ok(userService.updateUser(id, userRequestDTO));
+    }
+
+    @Override
+    public ResponseEntity<UserResponseDTO> patchUser(Long id, UserUpdateDTO userUpdateDTO) {
+        return ResponseEntity.ok(userService.patchUser(id, userUpdateDTO));
     }
 }

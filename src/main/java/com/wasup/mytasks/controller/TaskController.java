@@ -2,6 +2,7 @@ package com.wasup.mytasks.controller;
 
 import com.wasup.mytasks.api.TaskApi;
 import com.wasup.mytasks.model.TaskDTO;
+import com.wasup.mytasks.model.TaskUpdateDTO;
 import com.wasup.mytasks.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -44,4 +45,15 @@ public class TaskController implements TaskApi {
         taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
+
+    @Override
+    public ResponseEntity<TaskDTO> updateTask(Long id, TaskDTO taskDTO) {
+        return ResponseEntity.ok(taskService.updateTask(id, taskDTO));
+    }
+
+    @Override
+    public ResponseEntity<TaskDTO> patchTask(Long id, TaskUpdateDTO taskUpdateDTO) {
+        return ResponseEntity.ok(taskService.patchUser(id, taskUpdateDTO));
+    }
+
 }

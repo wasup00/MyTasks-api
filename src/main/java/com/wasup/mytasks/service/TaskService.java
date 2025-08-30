@@ -4,6 +4,7 @@ import com.wasup.mytasks.exception.ResourceNotFoundException;
 import com.wasup.mytasks.exception.ValidationException;
 import com.wasup.mytasks.model.ModelUtils;
 import com.wasup.mytasks.model.TaskDTO;
+import com.wasup.mytasks.model.TaskUpdateDTO;
 import com.wasup.mytasks.model.entity.Task;
 import com.wasup.mytasks.model.entity.User;
 import com.wasup.mytasks.repository.TaskRepository;
@@ -91,6 +92,39 @@ public class TaskService {
         return userService.findUserByUsername(username)
                 .map(User::getId)
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MSG));
+    }
+
+
+    public TaskDTO updateTask(Long id, TaskDTO taskDTO) {
+        if (!taskRepository.existsById(id)) {
+            log.atError().addArgument(id).log("No task with id -> {} found");
+            throw new ResourceNotFoundException("Task not found");
+        }
+        Task task = ModelUtils.convertToEntity(taskDTO, Task.class);
+        task.setId(id);
+        Task savedTask = taskRepository.save(task);
+        return ModelUtils.convertToDto(savedTask, TaskDTO.class);
+    }
+
+    public TaskDTO patchUser(Long id, TaskUpdateDTO taskUpdateDTO) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
+
+        if (taskUpdateDTO.getCompleted() != null) {
+            task.setCompleted(taskUpdateDTO.getCompleted());
+        }
+        if (taskUpdateDTO.getDate() != null) {
+            task.setDate(taskUpdateDTO.getDate());
+        }
+        if (taskUpdateDTO.getDescription() != null) {
+            task.setDescription(taskUpdateDTO.getDescription());
+        }
+        if (taskUpdateDTO.getTitle() != null) {
+            task.setTitle(taskUpdateDTO.getTitle());
+        }
+
+        Task savedPatchedTask = taskRepository.save(task);
+        return ModelUtils.convertToDto(savedPatchedTask, TaskDTO.class);
     }
 
 }
