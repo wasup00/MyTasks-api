@@ -1,6 +1,7 @@
 package com.wasup.mytasks.service;
 
 import com.wasup.mytasks.config.JwtProperties;
+import com.wasup.mytasks.model.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -12,8 +13,11 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class JwtService {
@@ -31,7 +35,7 @@ public class JwtService {
         }
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, Set<Role> roles) {
         Date now = new Date(System.currentTimeMillis());
         Date expiryDate = new Date(now.getTime() + (jwtProperties.getExpirationTime() * 60 * 1000));
         return Jwts.builder()
@@ -39,6 +43,7 @@ public class JwtService {
                 .issuer(jwtProperties.getIssuer())
                 .issuedAt(now)
                 .expiration(expiryDate)
+                .claim("roles", roles == null ? Collections.emptyList() : Role.expand(roles))
                 .signWith(getKey())
                 .compact();
     }
@@ -51,6 +56,13 @@ public class JwtService {
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);
     }
+
+    public Set<String> extractRoles(String token) {
+        Set<?> raw = extractClaim(token, claims -> claims.get("roles", Set.class));
+        if (raw == null) return Collections.emptySet();
+        return raw.stream().map(String::valueOf).collect(Collectors.toSet());
+    }
+
 
     private <T> T extractClaim(String token, Function<Claims, T> claimResolver) {
         final Claims claims = extractAllClaims(token);

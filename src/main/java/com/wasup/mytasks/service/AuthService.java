@@ -42,7 +42,7 @@ public class AuthService {
         User user = userRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        String token = jwtService.generateToken(user.getUsername());
+        String token = jwtService.generateToken(user.getUsername(), user.getRoles());
         return new LoginResponse()
                 .token(token)
                 .user(ModelUtils.convertToDto(user, UserResponseDTO.class));

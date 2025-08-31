@@ -7,17 +7,24 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 public class AuthUser implements UserDetails {
 
     User user;
 
+    private static final String AUTHORITY_PREFIX = "ROLE_";
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("USER"));
+        Set<Role> expandedRoles = Role.expand(user.getRoles());
+        return expandedRoles.stream()
+                .map(Role::name)
+                .map(roleName -> new SimpleGrantedAuthority(AUTHORITY_PREFIX + roleName))
+                .collect(Collectors.toUnmodifiableSet());
+
     }
 
     @Override
